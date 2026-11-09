@@ -1,0 +1,35 @@
+--- a/WhateverXe/kern_xelp_devices.hpp
++++ b/WhateverXe/kern_xelp_devices.hpp
+@@ -49,7 +49,7 @@
+     {0xA7A8, Family::RaptorLakeP, Display::XeLPD, GT::RPLPMedium, "Intel UHD Graphics"},
+     {0xA7A9, Family::RaptorLakeP, Display::XeLPD, GT::Unknown, "Intel UHD Graphics"},
+     {0xA7AA, Family::RaptorLakeP, Display::XeLPD, GT::Unknown, "Intel Graphics"},
+-    {0xA7AB, Family::RaptorLakeP, Display::XeLPD, GT::Unknown, "Intel Graphics"},
++    {0xA7AB, Family::RaptorLakeP, Display::XeLPD, GT::RPLPMedium, "Intel Graphics"},
+     {0xA7AC, Family::RaptorLakeP, Display::XeLPD, GT::Unknown, "Intel Graphics"},
+     {0xA7AD, Family::RaptorLakeP, Display::XeLPD, GT::Unknown, "Intel Graphics"},
+ };
+--- a/tests/raptorlake_p.cpp
++++ b/tests/raptorlake_p.cpp
+@@ -87,9 +87,10 @@
+         assert(RaptorLakeP::family(pci)==rpl);
+         if(!rpl)continue;
+         ++catalogued;
+-        // Only the measured A7A8 has a backend, admitted at revision 4 (GT C0 / display E0) alone.
++        // A7A8 rev 4 is the measured reference; A7AB rev 4 measured the same
++        // qualified fuse set in R1 (64 EU, 4 DSS, L3 0x88, media 0x000E00FE).
+         // The rest stay recognition only: no GT backend, donor, admission or probe ABI.
+-        const bool measured=entry.device==0xA7A8;
++        const bool measured=entry.device==0xA7A8 || entry.device==0xA7AB;
+         for(uint32_t revision:{0U,3U,4U,5U,8U,12U}) {
+             const auto p=XELP::identify(pci,revision);
+             assert(p.display==XELP::Display::XeLPD && p.gt==(measured ? XELP::GT::RPLPMedium : XELP::GT::Unknown));
+@@ -107,7 +108,7 @@
+     for(uint32_t revision:{0U,1U,3U,5U,8U,12U,255U}) {
+         step=RaptorLakeP::stepping(revision);assert(!step.gt && !step.display);
+     }
+-    std::puts("RaptorLakeP catalogue: A7A8 rev 4 admitted alone, others recognition only, Linux revision-4 steppings passed");
++    std::puts("RaptorLakeP catalogue: A7A8/A7AB rev 4 admitted, others recognition only, Linux revision-4 steppings passed");
+ 
+     RaptorLakeP::Resources res;
+     assert(RaptorLakeP::resources(1,0xf,0,0,0xe00fa,res));
