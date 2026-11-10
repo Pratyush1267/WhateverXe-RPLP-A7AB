@@ -222,7 +222,7 @@ template<class IO> EDPReadout readEDP(IO &io, const AlderLakeN::DisplayReadout &
 namespace CapsReply {
 enum class Status : uint32_t {Untouched, Rewritten, Disabled, Error, BadSize, NotA7A8};
 constexpr uint64_t Size = 0x7C;
-constexpr uint32_t Physical = 0xA7A88086, Presented = 0x9A498086, PresentedADLN = 0x46D08086;
+constexpr uint32_t Physical = 0xA7A88086, PhysicalA7AB = 0xA7AB8086, Presented = 0x9A498086, PresentedADLN = 0x46D08086;
 inline uint32_t identity(const uint8_t *reply) {
     return reply[8] | uint32_t(reply[9]) << 8 | uint32_t(reply[10]) << 16 | uint32_t(reply[11]) << 24;
 }
@@ -232,7 +232,7 @@ inline Status adapt(uint8_t *reply, uint64_t size, int result, bool enabled, uin
     if (!enabled) return Status::Disabled;
     if (result != 0) return Status::Error;
     if (!reply || size != Size) return Status::BadSize;
-    if (identity(reply) != Physical) return Status::NotA7A8;
+    if (identity(reply) != Physical && identity(reply) != PhysicalA7AB) return Status::NotA7A8;
     reply[10] = uint8_t(presented >> 16); reply[11] = uint8_t(presented >> 24);
     return Status::Rewritten;
 }

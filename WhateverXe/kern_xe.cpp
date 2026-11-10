@@ -4922,7 +4922,7 @@ void XE::processKernel(KernelPatcher &patcher, DeviceInfo *info) {
 			physicalGPU->setProperty("N97NativeKernelReady",tglActive);
 		}
 		RPLPGLURBRuntime::processKernel(patcher,xeProfile.family==XELP::Family::RaptorLakeP &&
-			xeProfile.identity==0xA7A88086 && xeProfile.revision==4 && adlnNativeReady && tglActive &&
+			(xeProfile.identity==0xA7A88086 || xeProfile.identity==0xA7AB8086) && xeProfile.revision==4 && adlnNativeReady && tglActive &&
 			adlnNativeSubslices==8 && adlnNativeEUs==64 && adlnL3Banks==6);
 		return;
 	}
